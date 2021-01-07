@@ -1,4 +1,9 @@
 **Status:** Maintenance (expect bug fixes and minor updates)
+Instructions to run examples and to navigate directory
+
+In gym/envs/mujoco folder you will find satellite.py. This is where we define the satellite MujocoEnv. To run the Cross Entropy Method Agent on the Satellite-v0 env, from the gym folder, run python examples/agents/cem.py Satellite-v0.
+
+
 
 OpenAI Gym
 **********
