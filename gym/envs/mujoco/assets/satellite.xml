@@ -1,0 +1,68 @@
+<mujoco model='reactionwheel-v0.1'>
+    <compiler angle='degree'/>
+
+    <default class="main">
+        <joint armature="1" damping="1" limited="false"/>
+        <geom contype='1' conaffinity='1' condim='3' rgba='0.8 0.6 .4 1'
+        	margin="0.001" solref=".02 1" solimp=".8 .8 .01" material="geom"/>
+    </default>
+
+    <option timestep='0.002' iterations="50" solver="PGS">
+        <flag energy="enable" gravity='disable'/>
+    </option>
+
+    <visual>
+        <map fogstart="3" fogend="5" force="0.1" znear="0.1"/>
+        <quality shadowsize="2048"/>
+        <global offwidth="800" offheight="800"/>
+    </visual>
+
+    <asset>
+		<texture type="skybox" builtin="gradient" width="128" height="128" rgb1=".4 .6 .8" 
+            rgb2="0 0 0"/>  
+        <texture name="texgeom" type="cube" builtin="flat" mark="cross" width="127" height="1278" 
+            rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" markrgb="1 1 1" random="0.01"/>  
+        <texture name="texplane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" 
+            width="512" height="512"/>  
+
+        <material name='MatPlane' reflectance='0.5' texture="texplane" texrepeat="1 1" texuniform="true"/>
+        <material name='geom' texture="texgeom" texuniform="true"/>
+    </asset>
+
+    <worldbody>
+        <light directional='false' diffuse='.8 .8 .8' specular='0.3 0.3 0.3' pos='0 0 4.0' dir='0 -.15 -1'/>
+		<geom name='floor' pos='0 0 0' size='1.5 3 .125' type='plane' material="MatPlane" condim='3'/>
+
+        <body name='satellite' pos='0 0 1.5'>
+			<geom name='obj' type='box' size='.5 .5 .5' rgba='1 0 0 0.25' mass='1'/>
+            <joint name='sat_free' type='free' frictionloss='1'/>
+
+            <body name='disk_roll' pos='0 0 0' euler='90 0 0'>
+                <geom type='cylinder' size='0.1 0.025' mass='100'/>
+                <joint name='rw_roll' axis='0 0 1' type='hinge' />
+            </body>
+            <body name='disk_pitch' pos='0 0 -0.3' euler='0 90 0'>
+                <geom type='cylinder' size='0.1 0.025' mass='100'/>
+                <joint name='rw_pitch' axis='0 0 1' type='hinge' />
+            </body>
+            <body name='disk_yaw' pos='0 0 0.3'>
+                <geom type='cylinder' size='0.1 0.025' mass='100'/>
+                <joint name='rw_yaw' axis='0 0 1' type='hinge' />
+            </body>
+        </body>
+
+    </worldbody>
+
+    <actuator>
+        <motor name="a_roll" ctrllimited="true" ctrlrange="-1.0 1.0" joint="rw_roll" gear="150"/>
+        <motor name="a_pitch" ctrllimited="true" ctrlrange="-1.0 1.0" joint="rw_pitch" gear="150"/>
+        <motor name="a_yaw" ctrllimited="true" ctrlrange="-1.0 1.0" joint="rw_yaw" gear="150"/>
+    </actuator>
+
+    <!-- <sensor>
+        <jointvel name="s_roll"	joint="rw_roll"/>
+        <jointvel name="s_pitch"	joint="rw_pitch"/>
+        <jointvel name="s_yaw"	joint="rw_yaw"/>
+    </sensor> -->
+
+</mujoco>

@@ -22,6 +22,7 @@ if __name__ == '__main__':
     logger.set_level(logger.INFO)
 
     env = gym.make(args.env_id)
+    # env.render()
 
     # You provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
@@ -31,6 +32,7 @@ if __name__ == '__main__':
     env = wrappers.Monitor(env, directory=outdir, force=True)
     env.seed(0)
     agent = RandomAgent(env.action_space)
+    print(env.action_space)
 
     episode_count = 100
     reward = 0
@@ -41,6 +43,7 @@ if __name__ == '__main__':
         while True:
             action = agent.act(ob, reward, done)
             ob, reward, done, _ = env.step(action)
+            env.render()
             if done:
                 break
             # Note there's no env.render() here. But the environment still can open window and
