@@ -317,8 +317,8 @@ register(
 register(
     id='Satellite-v0',
     entry_point='gym.envs.mujoco.satellite:SatelliteEnv',
-    max_episode_steps=1000,
-    reward_threshold=6000.0,
+    max_episode_steps=10000,
+    # reward_threshold=6000.0,
 )
 
 register(

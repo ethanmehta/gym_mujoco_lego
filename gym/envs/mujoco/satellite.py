@@ -10,6 +10,7 @@ class SatelliteEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.i = 0
         self.w_d = np.zeros(3)
         self.q_d = np.asarray([0.707, 0, 0.707, 0])
+        self.total_reward = 0
 
 
         utils.EzPickle.__init__(self)
@@ -36,9 +37,13 @@ class SatelliteEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         # print(self._get_obs())
         self.i += 1
         
+        
         observation = self._get_obs()
         reward, done = self.reward(observation, a)
-        
+
+        self.total_reward += reward
+        performance = (1200/(1-(self.total_reward/self.i)))*100
+        print(performance)
         
         return self.flatten_observation(observation), reward, done, {"Count": self.i}
         
@@ -63,15 +68,18 @@ class SatelliteEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 c = 1000
             else:
                 c = 200
-        elif (q_err >= 2*self.q_init) or np.linalg.norm(w_e) < 2*self.w_init:
+        elif (q_err >= 2*self.q_init) or np.linalg.norm(w_e) <= 2*self.w_init:
             done = True
             c = -10**4
-        elif (q_err >= self.q_init) or np.linalg.norm(w_e) < self.w_init:
+        elif (q_err >= self.q_init) or np.linalg.norm(w_e) <= self.w_init:
             c = -10**3
         else:
             c = 0
 
-        reward = -alpha_q*q_err - alpha_w*np.linalg.norm(w_e) - np.square(action).sum() + c
+        if (self.i > 900):
+            done = True
+
+        reward = -alpha_q*q_err - alpha_w*np.linalg.norm(w_e) - np.square(action).sum() - c
 
         return reward, done
 

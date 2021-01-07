@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 import json, sys, os
 from os import path
-from _policies import BinaryActionLinearPolicy # Different file so it can be unpickled
+from _policies import ContinuousActionLinearPolicy # Different file so it can be unpickled
 import argparse
 
 def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
@@ -38,15 +38,18 @@ def cem(f, th_mean, batch_size, n_iter, elite_frac, initial_std=1.0):
         th_std = elite_ths.std(axis=0)
         yield {'ys' : ys, 'theta_mean' : th_mean, 'y_mean' : ys.mean()}
 
-def do_rollout(agent, env, num_steps, render=False):
+def do_rollout(agent, env, num_steps, render=True):
     total_rew = 0
     ob = env.reset()
-    for t in range(num_steps):
+    # for t in range(num_steps):
+    t = 0
+    while True:
         a = agent.act(ob)
         (ob, reward, done, _info) = env.step(a)
         total_rew += reward
         if render and t%3==0: env.render()
         if done: break
+        t += 1
     return total_rew, t+1
 
 if __name__ == '__main__':
@@ -80,15 +83,15 @@ if __name__ == '__main__':
     # ------------------------------------------
 
     def noisy_evaluation(theta):
-        agent = BinaryActionLinearPolicy(theta)
-        rew, T = do_rollout(agent, env, num_steps)
+        agent = ContinuousActionLinearPolicy(theta, env.observation_space.shape, env.action_space.shape)
+        rew, T = do_rollout(agent, env, num_steps, True)
         return rew
 
     # Train the agent, and snapshot each stage
     for (i, iterdata) in enumerate(
         cem(noisy_evaluation, np.zeros(env.observation_space.shape[0]+1), **params)):
         print('Iteration %2i. Episode mean reward: %7.3f'%(i, iterdata['y_mean']))
-        agent = BinaryActionLinearPolicy(iterdata['theta_mean'])
+        agent = ContinuousActionLinearPolicy(iterdata['theta_mean'], env.observation_space.shape, env.action_space.shape)
         if args.display: do_rollout(agent, env, 200, render=True)
         writefile('agent-%.4i.pkl'%i, str(pickle.dumps(agent, -1)))
 
